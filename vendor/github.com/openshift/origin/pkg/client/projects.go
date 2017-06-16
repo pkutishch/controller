@@ -2,7 +2,7 @@ package client
 
 import (
 	kapi "k8s.io/kubernetes/pkg/api"
-
+	"k8s.io/kubernetes/pkg/watch"
 	projectapi "github.com/openshift/origin/pkg/project/api"
 )
 
@@ -17,6 +17,7 @@ type ProjectInterface interface {
 	Delete(name string) error
 	Get(name string) (*projectapi.Project, error)
 	List(opts kapi.ListOptions) (*projectapi.ProjectList, error)
+	Watch(opts kapi.ListOptions) (watch.Interface, error)
 }
 
 type projects struct {
@@ -29,7 +30,13 @@ func newProjects(c *Client) *projects {
 		r: c,
 	}
 }
-
+func (c *projects) Watch(opts kapi.ListOptions) (watch.Interface, error) {
+	return c.r.Get().
+		Prefix("watch").
+		Resource("projects").
+		VersionedParams(&opts, kapi.ParameterCodec).
+		Watch()
+}
 // Get returns information about a particular project or an error
 func (c *projects) Get(name string) (result *projectapi.Project, err error) {
 	result = &projectapi.Project{}
