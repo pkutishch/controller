@@ -1,2 +1,2 @@
 all:
-	go install github.com/damemi/controller/cmd/controller
+	go install github.com/pkutishch/controller
